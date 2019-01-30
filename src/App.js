@@ -1,10 +1,13 @@
 /*
  * Core
  */
-import React, { Component } from 'react';
-import styled from 'styled-components';
+import React, { Component, Fragment } from 'react';
+
+/*
+ * Apollo
+ */
 import { ApolloClient } from 'apollo-client';
-import { ApolloProvider, Query, Mutation } from "react-apollo";
+import { ApolloProvider, Mutation } from "react-apollo";
 import { WebSocketLink } from "apollo-link-ws";
 import { split } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http'
@@ -14,29 +17,31 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 /*
  * Components
  */
-// import { Preloader } from './components/Preloader';
+import { Title, Container, Logout } from './components/App';
+import { Wrapper } from './components/Wrapper';
 import { Error } from './components/Error';
-import Chatbox from './components/Chatbox';
 import { Input } from './components/Input';
 import { Button } from './components/Button';
+import Chatbox from './components/Chatbox';
 
 /*
  * Queries
  */
 import {
 	QUERY_GET_LOGINS,
-	MUTATION_GET_LOGINS,
-	SEND_MESSAGE_MUTATION
+	MUTATION_LOGIN,
+	MUTATION_SEND_MESSAGE
 } from './queries';
 
-const wsLink = new WebSocketLink({
+// TODO: move this links to some configuration file
+const linkWs = new WebSocketLink({
 	uri: process.env.REACT_APP_API_WS_URI,
 	options: {
 		reconnect: true
 	}
 });
 
-const httpLink = new HttpLink({
+const linkHttp = new HttpLink({
 	uri: process.env.REACT_APP_API_HTTP_URI,
 });
 
@@ -45,8 +50,8 @@ const link = split(
 		const { kind, operation } = getMainDefinition(query)
 		return kind === 'OperationDefinition' && operation === 'subscription'
 	},
-	wsLink,
-	httpLink
+	linkWs,
+	linkHttp
 );
 
 const client = new ApolloClient({
@@ -54,38 +59,6 @@ const client = new ApolloClient({
 	cache: new InMemoryCache(),
 	connectToDevTools: true
 });
-
-const Wrapper = styled.div`
-	height: 100%;
-	background: #0F5672;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-`;
-
-const Title = styled.h1`
-	font-size: 32px;
-	color: #ffffff;
-`;
-
-const Container = styled.div`
-	padding: 40px;
-	width: 580px;
-	box-sizing: border-box;
-	background: #f7f7f7;
-	border-radius: 8px;
-`;
-
-const Logout = styled.div`
-	display: inline-block;
-	text-decoration: underline;
-	font-size: 18px;
-	&:hover {
-		cursor: pointer;
-		text-decoration: none;
-	}
-`;
 
 class App extends Component {
 	constructor(props) {
@@ -98,9 +71,10 @@ class App extends Component {
 		};
 	}
 
+	// TODO: fix issue with mandatory reload
 	logOut() {
 		client.mutate({
-			mutation: SEND_MESSAGE_MUTATION,
+			mutation: MUTATION_SEND_MESSAGE,
 			variables: { from: "System", message: localStorage.getItem("name") + " has left this awesome chat!" }
 		}).then(() => {
 			localStorage.clear('name');
@@ -114,6 +88,7 @@ class App extends Component {
 		const storedNickname = localStorage.getItem('name');
 		let input;
 
+		// TODO: can be moved to sepparate component for remove code dublication
 		if (logedIn || storedNickname) {
 			if(!storedNickname){
 				localStorage.setItem('name', name);
@@ -137,9 +112,10 @@ class App extends Component {
 						<Title>Uchat</Title>
 						<Container>
 							{this.state.error && <Error>{this.state.errorMessage}</Error>}
-							<Mutation mutation={MUTATION_GET_LOGINS}>
-								{(addLogin, { data }) => (
-									<div>
+							{/* TODO: add preloader here when checking for login */}
+							<Mutation mutation={MUTATION_LOGIN}>
+								{(addLogin) => (
+									<Fragment>
 										<form onSubmit={e => {
 											e.preventDefault();
 											this.setState({ error: false });
@@ -158,11 +134,7 @@ class App extends Component {
 												query: QUERY_GET_LOGINS
 											}).then(response => {
 												const isLoginUsed = response.data.getLogins.some(login => {
-													if (login.name === name) {
-														return true;
-													} else {
-														return false;
-													}
+													return login.name === name;
 												})
 
 												if (isLoginUsed) {
@@ -183,7 +155,7 @@ class App extends Component {
 											/>
 											<Button type="submit">Login</Button>
 										</form>
-									</div>
+									</Fragment>
 								)}
 							</Mutation>
 						</Container>

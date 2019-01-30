@@ -1,20 +1,24 @@
 /*
  * Core
  */
-import React, { Component } from 'react';
-import styled from 'styled-components';
-// import ApolloClient from "apollo-boost";
-// import gql from "graphql-tag";
-// import { graphql } from 'react-apollo';
+import React, { Component, Fragment } from 'react';
+
+/*
+ * Apollo
+ */
 import { Query, Mutation } from "react-apollo";
 import { animateScroll } from "react-scroll";
 
 /*
  * Components
  */
+import { Box } from './Box';
+import { Avatar } from './Avatar';
+import { Message } from './Message';
+import { Text } from './Text';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
-// import { Preloader } from '../../components/Preloader';
+import { Preloader } from '../../components/Preloader';
 import { Error } from '../../components/Error';
 
 /*
@@ -22,11 +26,11 @@ import { Error } from '../../components/Error';
  */
 import { 
 	QUERY_GET_MESSAGES, 
-	SEND_MESSAGE_MUTATION, 
-	SEND_MESSAGE_SUB 
+	MUTATION_SEND_MESSAGE, 
+	SUBSCRIPTION_SEND_MESSAGE 
 } from '../../queries';
 
-let sub = null;
+let subscriptionMessage = null;
 
 const MessagesContainer = () => (
 	<Query query={QUERY_GET_MESSAGES}>
@@ -35,15 +39,15 @@ const MessagesContainer = () => (
 				return null;
 			}
 			if (loading) {
-				return <span>Loading ...</span>;
+				return <Preloader />;
 			}
 			if (error) { 
-				return <p>Sorry! Something went wrong.</p>;
+				return <Error>Sorry, something went wrong!</Error>;
 			}
 
-			if (!sub) {
-				sub = subscribeToMore({
-				  document: SEND_MESSAGE_SUB,
+			if (!subscriptionMessage) {
+				subscriptionMessage = subscribeToMore({
+				  document: SUBSCRIPTION_SEND_MESSAGE,
 				  updateQuery: (prev, { subscriptionData }) => {
 					if (!subscriptionData.data) {
 					  return prev;
@@ -64,55 +68,20 @@ const MessagesContainer = () => (
 	</Query>
 );
 
-const Box = styled.div`
-	padding: 8px;
-	height: 400px;
-	width: 100%;
-	overflow-y: scroll;
-	background: #d4d4d4;
-	border-radius: 8px;
-	box-sizing: border-box;
-`;
-
-const Message = styled.div`
-	margin-top: 8px;
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-`;
-
-const Avatar = styled.div`
-	margin-right: 8px;
-	background: #0F5672;
-	color: #ffffff;
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-`;
-
-const Text = styled.div`
-	min-height: 40px;
-	padding: 8px;
-	background: #c1c1c1;
-	border-radius: 8px;
-	flex: 1;
-`;
-
 const MessageList = (props) => {
 	scrollToBottom();
 
-	return props.props.map((chat, index) => (
+	return (
+		props.props.map((chat, index) => (
 			<Message key={index}>
 				<Avatar>{chat.from.substring(0, 1)}</Avatar>
 				<Text>{chat.from}: {chat.message}</Text>
 			</Message>
-		  ))
+		))
+	)
 }
 
+// TODO: this is buddy, probably event bubbling issue
 const scrollToBottom = () => {
 	animateScroll.scrollToBottom({
 		containerId: "chatBox"
@@ -121,8 +90,8 @@ const scrollToBottom = () => {
 
 class Chatbox extends Component {
 	state = {
-		from: '',
-		message: '',
+		from: "",
+		message: "",
 		error: false
 	}
 
@@ -131,14 +100,14 @@ class Chatbox extends Component {
 		let input;
 
 		return (
-			<div>
+			<Fragment>
 				<Box id="chatBox">
 					{MessagesContainer()}
 				</Box>
 				{this.state.error && <Error>Please enter any message!</Error>}
-				<Mutation mutation={SEND_MESSAGE_MUTATION}>
+				<Mutation mutation={MUTATION_SEND_MESSAGE}>
 					{(sendMessage) => (
-						<div>
+						<Fragment>
 							<form onSubmit={e => {
 									e.preventDefault();
 									this.setState({ error: false });
@@ -151,20 +120,18 @@ class Chatbox extends Component {
 
 									sendMessage({ variables: { from: from, message: message } });
 									this.setState({ message: "" });
-								}
-							}>
+								}}>
 								<Input 
 									placeholder="Enter a message to send" 
 									value={message}
 									ref={node => { input = node }}
-									onChange={e => this.setState({ from: localStorage.getItem('name'), message: e.target.value })}
-								/>
+									onChange={e => this.setState({ from: localStorage.getItem('name'), message: e.target.value })} />
 								<Button type="submit">Send</Button>
 							</form>
-						</div>
+						</Fragment>
 					)}
 				</Mutation>
-			</div>
+			</Fragment>
 		);
 	}
 }

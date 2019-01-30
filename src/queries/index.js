@@ -11,17 +11,7 @@ export const QUERY_GET_LOGINS = gql`
 	}
 `;
 
-export const MUTATION_GET_LOGINS = gql`
-	mutation SendMessageMutation($name: String!) {
-		logIn(
-			name: $name,
-		) {
-			name
-		}
-	}
-`;
-
-export const QUERY_GET_MESSAGES = gql `
+export const QUERY_GET_MESSAGES = gql`
 	{
 		getMessages {
 			id,
@@ -31,7 +21,17 @@ export const QUERY_GET_MESSAGES = gql `
 	}
 `;
 
-export const SEND_MESSAGE_MUTATION = gql`
+export const MUTATION_LOGIN = gql`
+	mutation SendLoginMutation($name: String!) {
+		logIn(
+			name: $name,
+		) {
+			name
+		}
+	}
+`;
+
+export const MUTATION_SEND_MESSAGE = gql`
 	mutation SendMessageMutation($from: String!, $message: String!) {
 		sendMessage(
 			from: $from,
@@ -44,7 +44,7 @@ export const SEND_MESSAGE_MUTATION = gql`
 	}
 `;
 
-export const SEND_MESSAGE_SUB = gql`
+export const SUBSCRIPTION_SEND_MESSAGE = gql`
 	subscription MessageSentSubscription {
 		messageSent {
 			id
