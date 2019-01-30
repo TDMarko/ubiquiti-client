@@ -1,23 +1,23 @@
-#Test assignemnt for Ubiquiti Networks - Client part
+# Test assignemnt for Ubiquiti Networks - Client part
 
 Simple live chat application.
 Server part can be found here: https://github.com/TDMarko/ubiquiti-server
 
-P.S. this is first time I use GraphQL and Apollo. Used this task as a reason to try it :)
+**P.S. this is first time I use GraphQL and Apollo. Used this task as a reason to try it :)**
 
-##Build with
+## Build with
 - ReactJS
 - Styled-components
 - Apollo Client
 - GraphQL
 - Love ❤️
 
-##Requirements
+## Requirements
 - Node
 - Git
 - Yarn, if you like it more
 
-##Intallation
+## Intallation
 ```
 npm install
 npm start
@@ -30,7 +30,7 @@ REACT_APP_API_HTTP_URI=http://localhost:4000/
 
 !NB: don't forget to run server part ;) 
 
-##Todo
+## Todo
 - Add 'Disconnected due to innactivty' and 'Server unvailable' messages
 - Make some fancy nancy animations
 - Fix chat scroll down animation
