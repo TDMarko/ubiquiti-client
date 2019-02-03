@@ -35,3 +35,5 @@ REACT_APP_API_HTTP_URI=http://localhost:4000/
 - ~~Logout on inactivity~~
 - Make some fancy nancy animations
 - Fix chat scroll down animation
+- Move inactivity timeout to backend
+- To something with "Terminates gracefully upon receiving SIGINT or SIGTERM signals" :(
