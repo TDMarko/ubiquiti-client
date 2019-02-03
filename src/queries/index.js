@@ -24,7 +24,17 @@ export const QUERY_GET_MESSAGES = gql`
 export const MUTATION_LOGIN = gql`
 	mutation SendLoginMutation($name: String!) {
 		logIn(
-			name: $name,
+			name: $name
+		) {
+			name
+		}
+	}
+`;
+
+export const MUTATION_LOGOUT = gql`
+	mutation SendLogoutMutation($name: String!) {
+		logOut(
+			name: $name
 		) {
 			name
 		}

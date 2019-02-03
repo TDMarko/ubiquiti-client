@@ -31,6 +31,7 @@ import Chatbox from './components/Chatbox';
 import {
 	QUERY_GET_LOGINS,
 	MUTATION_LOGIN,
+	MUTATION_LOGOUT,
 	MUTATION_SEND_MESSAGE
 } from './queries';
 
@@ -80,15 +81,22 @@ class App extends Component {
 			mutation: MUTATION_SEND_MESSAGE,
 			variables: { from: "System", message: localStorage.getItem("name") + reason }
 		}).then(() => {
-			localStorage.clear('name');
-			this.setState({ logedIn: false });
-			window.location.reload();
+			// TODO: not secured of course, but ok for demo purpose 
+			client.mutate({
+				mutation: MUTATION_LOGOUT,
+				variables: { name: localStorage.getItem("name") }
+			}).then(() => {
+				localStorage.clear('name');
+				this.setState({ logedIn: false });
+				window.location.reload();
+			})
 		})
 	};
 
 	render() {
 		const { name, logedIn } = this.state;
 		const storedNickname = localStorage.getItem('name');
+		const inactivityTimer = 15000;
 		let input;
 
 		// TODO: can be moved to sepparate component for remove code dublication
@@ -106,7 +114,7 @@ class App extends Component {
 							element={document}
 							onIdle={this.onIdleLogout}
 							debounce={250}
-							timeout={process.env.REACT_APP_INACTIVITY_TIMER} />
+							timeout={inactivityTimer} />
 						<Container>
 							<Chatbox />
 						</Container>
