@@ -89,10 +89,13 @@ const scrollToBottom = () => {
 }
 
 class Chatbox extends Component {
-	state = {
-		from: "",
-		message: "",
-		error: false
+	constructor(props) {
+		super(props);
+		this.state = {
+			from: "",
+			message: "",
+			error: false
+		}
 	}
 
 	render() {

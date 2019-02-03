@@ -26,11 +26,13 @@ npm start
 ```
 REACT_APP_API_WS_URI=ws://localhost:4000/graphql
 REACT_APP_API_HTTP_URI=http://localhost:4000/
+REACT_APP_INACTIVITY_TIMER=15000
 ```
 
 !NB: don't forget to run server part ;) 
 
 ## Todo
-- Add 'Disconnected due to innactivty' and 'Server unvailable' messages
+- ~~Add 'Disconnected due to innactivty'~~ and 'Server unvailable' messages
+- ~~Logout on inactivity~~
 - Make some fancy nancy animations
 - Fix chat scroll down animation

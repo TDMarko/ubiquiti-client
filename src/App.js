@@ -2,6 +2,7 @@
  * Core
  */
 import React, { Component, Fragment } from 'react';
+import IdleTimer from 'react-idle-timer';
 
 /*
  * Apollo
@@ -69,13 +70,15 @@ class App extends Component {
 			error: false,
 			errorMessage: ""
 		};
+
+		this.onIdleLogout = this.onIdleLogout.bind(this)
 	}
 
 	// TODO: fix issue with mandatory reload
-	logOut() {
+	logOut(reason) {
 		client.mutate({
 			mutation: MUTATION_SEND_MESSAGE,
-			variables: { from: "System", message: localStorage.getItem("name") + " has left this awesome chat!" }
+			variables: { from: "System", message: localStorage.getItem("name") + reason }
 		}).then(() => {
 			localStorage.clear('name');
 			this.setState({ logedIn: false });
@@ -97,7 +100,13 @@ class App extends Component {
 			return (
 				<ApolloProvider client={client}>
 					<Wrapper>
-						<Title>Uchat <Logout onClick={() => this.logOut()}>Logout</Logout></Title>
+						<Title>Uchat <Logout onClick={() => this.logOut(" has left this awesome chat!")}>Logout</Logout></Title>
+						<IdleTimer
+							ref={ref => { this.idleTimer = ref }}
+							element={document}
+							onIdle={this.onIdleLogout}
+							debounce={250}
+							timeout={process.env.REACT_APP_INACTIVITY_TIMER} />
 						<Container>
 							<Chatbox />
 						</Container>
@@ -163,6 +172,10 @@ class App extends Component {
 				</ApolloProvider>
 			);
 		}
+	}
+	
+	onIdleLogout() {
+		this.logOut(" has left due to inactivity!");
 	}
 }
 
